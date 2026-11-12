@@ -21,6 +21,7 @@ services:
       - ~/hydr4-data/agent/config:/home/agent/.config
       - ~/hydr4-data/agent/local-share:/home/agent/.local/share/opencode
       - ../configs:/configs:ro
+      - ${AGENT_SSH_DIR:-./empty-ssh-dir}:/home/agent/.ssh:ro
 
     networks:
       - agent-net
