@@ -6,6 +6,10 @@ services:
       dockerfile: Dockerfile
     container_name: hydr4-agent
     user: "1000:1000"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     ports:
       - "127.0.0.1:4096:4096"
       - "127.0.0.1:3080:3080"

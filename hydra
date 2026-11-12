@@ -25,17 +25,22 @@ case "$1" in
                 echo -e "${GREEN}Token refresher уже запущен (PID: $(cat $PID_FILE))${NC}"
             else
                 echo -e "${YELLOW}Запуск фонового обновления GitHub токена...${NC}"
-                # Сгенерировать токен сразу
+                # Сгенерировать токен сразу (атомарная запись)
+                TMP_TOKEN=$(mktemp)
                 ./scripts/get-github-token.sh "$GITHUB_APP_ID" "$GITHUB_INSTALLATION_ID" \
-                    "$HOME/hydr4-data/secrets/github-app/private-key.pem" \
-                    > "$HOME/hydr4-data/secrets/github-app/current-token"
+                    "$HOME/hydr4-data/secrets/github-app/private-key.pem" > "$TMP_TOKEN"
+                chmod 600 "$TMP_TOKEN"
+                mv "$TMP_TOKEN" "$HOME/hydr4-data/secrets/github-app/current-token"
                 
                 # Запустить фоновый процесс
                 nohup bash -c "
                     while true; do
                         sleep 3000
                         cd $PWD
-                        ./scripts/get-github-token.sh $GITHUB_APP_ID $GITHUB_INSTALLATION_ID $HOME/hydr4-data/secrets/github-app/private-key.pem > $HOME/hydr4-data/secrets/github-app/current-token
+                        TMP_TOKEN=\$(mktemp)
+                        ./scripts/get-github-token.sh $GITHUB_APP_ID $GITHUB_INSTALLATION_ID $HOME/hydr4-data/secrets/github-app/private-key.pem > \"\$TMP_TOKEN\"
+                        chmod 600 \"\$TMP_TOKEN\"
+                        mv \"\$TMP_TOKEN\" $HOME/hydr4-data/secrets/github-app/current-token
                     done
                 " > "$LOG_FILE" 2>&1 &
                 echo $! > "$PID_FILE"
@@ -62,9 +67,11 @@ case "$1" in
         ;;
     token)
         echo -e "${YELLOW}Ручное обновление GitHub токена...${NC}"
+        TMP_TOKEN=$(mktemp)
         ./scripts/get-github-token.sh "$GITHUB_APP_ID" "$GITHUB_INSTALLATION_ID" \
-            "$HOME/hydr4-data/secrets/github-app/private-key.pem" \
-            > "$HOME/hydr4-data/secrets/github-app/current-token"
+            "$HOME/hydr4-data/secrets/github-app/private-key.pem" > "$TMP_TOKEN"
+        chmod 600 "$TMP_TOKEN"
+        mv "$TMP_TOKEN" "$HOME/hydr4-data/secrets/github-app/current-token"
         echo -e "${GREEN}Токен обновлен!${NC}"
         ;;
     web)
