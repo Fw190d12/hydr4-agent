@@ -37,6 +37,11 @@ services:
       interval: 20s
       timeout: 5s
       retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agent.rule=Host(`agent.localhost`)"
+      - "traefik.http.routers.agent.entrypoints=web"
+      - "traefik.http.services.agent.loadbalancer.server.port=4096"
     deploy:
       resources:
         limits:

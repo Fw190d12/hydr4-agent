@@ -49,8 +49,9 @@ case "$1" in
         fi
         
         echo -e "${GREEN}Готово!${NC}"
-        echo -e "• Web UI (OpenCode Agent): http://localhost:4096"
-        echo -e "• Web UI (FreeLLMAPI): http://localhost:3001"
+        echo -e "• Agent UI:      http://agent.localhost"
+        echo -e "• Aggregator UI: http://api.localhost"
+        echo -e "• Traefik Dash:  http://localhost:8080"
         ;;
     stop)
         echo -e "${YELLOW}Остановка Hydra...${NC}"
