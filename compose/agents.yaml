@@ -1,0 +1,43 @@
+services:
+  agent:
+    profiles: ["dsh", "opencode"]
+    build:
+      context: ../docker/universal-agent
+      dockerfile: Dockerfile
+    container_name: hydr4-agent
+    user: "1000:1000"
+    ports:
+      - "127.0.0.1:4096:4096"
+      - "127.0.0.1:3080:3080"
+    environment:
+      - AGENT_TYPE=${AGENT_TYPE:-opencode}
+      - OPENAI_BASE_URL=http://aggregator:3001/v1
+      - HYDRA_API_KEY=${FREELMAPI_UNIFIED_KEY}
+      - OPENCODE_PASSWORD=${OPENCODE_PASSWORD}
+      - OPENCODE_CONFIG=/configs/opencode.json
+      - GIT_CONFIG_GLOBAL=/home/agent/.config/.gitconfig
+      - GITHUB_APP_ID=${GITHUB_APP_ID}
+      - GITHUB_INSTALLATION_ID=${GITHUB_INSTALLATION_ID}
+    volumes:
+      - ../../workspace:/workspace
+      - ~/hydr4-data/agent/config:/home/agent/.config
+      - ~/hydr4-data/agent/local-share:/home/agent/.local/share/opencode
+      - ../configs:/configs:ro
+      - ~/hydr4-data/secrets/github-app:/home/agent/.config/github-app:ro
+
+    networks:
+      - agent-net
+    restart: unless-stopped
+    depends_on:
+      aggregator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4096/api/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'

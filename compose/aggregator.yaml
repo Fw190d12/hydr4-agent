@@ -1,0 +1,30 @@
+services:
+  aggregator:
+    image: ghcr.io/tashfeenahmed/freellmapi@sha256:da6829d4ae510b968aa8bea6817a3647f5396c312392bbf44f47942d0aec2d96
+    container_name: hydr4-aggregator
+    ports:
+      - "127.0.0.1:3001:3001" # <--- Только локально
+    env_file:
+      - ../.env
+    environment:
+      - PORT=3001
+      - HOST_BIND=0.0.0.0
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - HTTP_PROXY=${UPSTREAM_PROXY}
+      - HTTPS_PROXY=${UPSTREAM_PROXY}
+      - NO_PROXY=localhost,127.0.0.1
+    volumes:
+      - ~/hydr4-data/aggregator:/app/server/data
+    networks:
+      - agent-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'

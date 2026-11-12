@@ -1,0 +1,4 @@
+include:
+  - compose/network.yaml
+  - compose/aggregator.yaml
+  - compose/agents.yaml

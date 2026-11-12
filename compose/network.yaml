@@ -1,0 +1,3 @@
+networks:
+  agent-net:
+    name: hydr4-agent-net
