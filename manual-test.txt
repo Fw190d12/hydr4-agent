@@ -1,0 +1,1 @@
+This is a manual test from inside the container.
