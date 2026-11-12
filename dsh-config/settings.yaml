@@ -1,0 +1,12 @@
+agent-default-model:
+  provider: hydra
+  model: gemini-3.5-flash-lite
+
+llm-pi-ai:
+  providers:
+    hydra:
+      api: openai-completions
+      baseURL: http://aggregator:3001/v1
+      apiKeyEnv: OPENAI_API_KEY
+      models:
+        - id: gemini-3.5-flash-lite
