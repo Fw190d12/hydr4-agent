@@ -109,3 +109,22 @@ We created a dedicated GitHub App (`Hydr4 Agent`) with restricted permissions (`
 - Direct pushes to `main` are blocked by Rulesets, even for the App.
 - The App is added to the Ruleset Bypass list with the `Only for pull requests` mode, ensuring it cannot bypass protection for direct pushes.
 - Secrets (the `.pem` file) remain outside the Git repository in `~/hydr4-data/secrets/github-app/`.
+
+### ADR-007: Token Generation on Host (Refactoring ADR-006)
+
+**Status:** Accepted.
+
+**Context:**
+In ADR-006, we generated the GitHub App token *inside* the container using `gh-token` and `jq`. This violated the separation of concerns — the container should only consume a token, not generate it.
+
+**Decision:**
+Move token generation to the host. The container no longer contains `gh-token` or `jq`. Instead:
+1. A host-side script (`scripts/get-github-token.sh`) uses `openssl`, `curl`, and `jq` to generate a fresh token.
+2. The token is written to `~/hydr4-data/secrets/github-app/current-token`.
+3. Only that file is mounted into the container (read-only).
+4. `entrypoint.sh` simply reads the file and configures Git.
+
+**Consequences:**
+- The container is simpler (no `gh-token` binary).
+- The private key (`private-key.pem`) is no longer visible inside the container.
+- The token must be refreshed manually (`./hydra token`) or via a cron job on the host.

@@ -16,15 +16,12 @@ services:
       - OPENCODE_PASSWORD=${OPENCODE_PASSWORD}
       - OPENCODE_CONFIG=/configs/opencode.json
       - GIT_CONFIG_GLOBAL=/home/agent/.config/.gitconfig
-      - GITHUB_APP_ID=${GITHUB_APP_ID}
-      - GITHUB_INSTALLATION_ID=${GITHUB_INSTALLATION_ID}
     volumes:
       - ../../workspace:/workspace
       - ~/hydr4-data/agent/config:/home/agent/.config
       - ~/hydr4-data/agent/local-share:/home/agent/.local/share/opencode
       - ../configs:/configs:ro
-      - ~/hydr4-data/secrets/github-app:/home/agent/.config/github-app:ro
-
+      - ~/hydr4-data/secrets/github-app/current-token:/home/agent/.config/github-app/current-token:ro
     networks:
       - agent-net
     restart: unless-stopped

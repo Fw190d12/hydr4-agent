@@ -13,21 +13,12 @@ fi
 # --------------------------
 
 # --- GitHub App Token Setup ---
-if [ -n "$GITHUB_APP_ID" ] && [ -n "$GITHUB_INSTALLATION_ID" ] && [ -f "/home/agent/.config/github-app/private-key.pem" ]; then
-    echo "🔑 Generating GitHub App token..."
-    TOKEN=$(gh-token generate \
-        --key /home/agent/.config/github-app/private-key.pem \
-        --app-id "$GITHUB_APP_ID" \
-        --installation-id "$GITHUB_INSTALLATION_ID" | jq -r .token)
-    
-    if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]; then
-        git config --global credential.helper store
-        echo "https://x-access-token:${TOKEN}@github.com" > /home/agent/.git-credentials
-        echo "✅ GitHub App token configured"
-    else
-        echo "❌ Failed to generate GitHub App token"
-    fi
+if [ -f "/home/agent/.config/github-app/current-token" ]; then
+    echo "🔑 Configuring GitHub App credential helper..."
+    git config --global credential.helper "/home/agent/.local/bin/git-credential-mount.sh"
+    echo "✅ GitHub App credential helper configured"
 fi
+
 # ------------------------------
 
 if [ "$AGENT_TYPE" = "opencode" ]; then
