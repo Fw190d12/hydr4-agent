@@ -13,7 +13,7 @@ fi
 # --------------------------
 
 # --- GitHub App Token Setup ---
-if [ -f "/home/agent/.config/github-app/current-token" ]; then
+if [ -s "/home/agent/.config/github-app/current-token" ]; then
     echo "🔑 Configuring GitHub App credential helper..."
     git config --global credential.helper "/home/agent/.local/bin/git-credential-mount.sh"
     echo "✅ GitHub App credential helper configured"
