@@ -5,48 +5,44 @@
 
 ---
 
-## 1. Migrate Traefik from `hydr4-agent` to `l3rn4-nix`
+## ✅ Completed (Archive)
 
-**Status:** Pending
-**Priority:** Medium
-**Created:** 2026-11-12
-**Related:** `compose/traefik.yaml`, ADR-003
+### 1. Migrate Traefik from `hydr4-agent` to `l3rn4-nix`
+**Status:** Done (2026-11-13)
+**Related:** `compose/traefik.yaml` (deleted), ADR-008
 
-### Context
+**Summary:**
+Traefik был перенесен на уровень хоста (`l3rn4-nix`). Теперь `hydr4-agent` не управляет прокси-сервером. Вместо этого мы объявляем наши сервисы через Docker-лейблы и подключаемся к внешней сети `traefik-net`. 
+На уровне `l3rn4-nix` также настроен безопасный доступ к Docker через `docker-socket-proxy` и добавлены роуты для `mihomo.localhost` и `traefik.localhost`. 
+Документация по сетевой архитектуре теперь ведется в `l3rn4-nix/NETWORK_AUDIT.md`.
 
-На этапе первичной интеграции Traefik был добавлен прямо в `compose/traefik.yaml` внутри `hydr4-agent`. Это было быстрое решение, чтобы получить красивые локальные домены (`agent.localhost`, `api.localhost`) без сложной настройки сетей.
+---
 
-Однако по принципу разделения ответственности:
-- **`l3rn4-nix`** — это инфраструктурный слой (NixOS + Docker + mihomo + шлюзы).
-- **`hydr4-agent`** — это приложение (агрегатор + агенты).
+## 🚀 Upcoming & Deferred Work
 
-Traefik — это **сетевой шлюз**, такой же как `mihomo`. Его место — в `l3rn4-nix`. Это также позволит через единый Traefik открывать дашборд `mihomo`, будущие self-hosted-сервисы и т.д.
+*Этот список будет пополняться по мере развития проекта.*
 
-### Goal
+### 2. Автоматическая ротация секретов
+- **Status:** Pending
+- **Context:** Сейчас `ENCRYPTION_KEY` и `FREELMAPI_UNIFIED_KEY` меняются вручную (через `.env` и UI).
+- **Goal:** Реализовать процедуру или скрипт для их безопасной ротации без простоя сервисов.
 
-Перенести Traefik из `hydr4-agent` в `l3rn4-nix` так, чтобы:
-1. Traefik жил на уровне хоста (запускается через `l3rn4-nix`).
-2. `hydr4-agent` только *объявлял* свои сервисы через Docker-лейблы.
-3. Через тот же Traefik был доступен дашборд `mihomo` (например, `http://mihomo.localhost`).
-4. Будущие проекты могли подключаться к тому же Traefik без второго экземпляра.
+### 3. Харденинг агента: `read_only: true`
+- **Status:** Pending
+- **Context:** Root-файловая система контейнера `agent` сейчас доступна для записи. 
+- **Goal:** Добавить `read_only: true` в `compose/agents.yaml` для `agent`, и смонтировать `tmpfs` для тех директорий, куда OpenCode пытается писать (например, `/tmp`), чтобы защитить систему от изменений.
 
-### Plan for `l3rn4-nix`
+### 4. Добавление `dsh` (DeepSeek Harness) как альтернативного агента
+- **Status:** Pending
+- **Context:** Наша архитектура позволяет запускать разных агентов через `AGENT_TYPE`. Сейчас используется OpenCode.
+- **Goal:** Проверить работу DSH в нашей песочнице (второй профиль в `compose.yaml`), сравнить его с OpenCode и, если нужно, добавить кастомные инструкции в `entrypoint.sh`.
 
-Задача для агента `l3rn4-nix`:
+### 5. Мониторинг и Observability
+- **Status:** Pending
+- **Context:** Сейчас мы видим только логи Docker и дашборд FreeLLMAPI.
+- **Goal:** Развернуть Prometheus + Grafana (или другой стек) для сбора метрик по токенам, задержкам LLM и статусу контейнеров.
 
-1. Создать Docker Compose-проект (например, `~/infra/`) для системных сервисов.
-2. Добавить Traefik v3.7 с конфигурацией:
-   - `--providers.docker=true`
-   - `--providers.docker.exposedbydefault=false`
-   - `--providers.docker.network=traefik-net`
-   - `--entryPoints.web.address=:80`
-   - `--api.insecure=true`
-3. Создать внешнюю Docker-сеть `traefik-net`.
-4. Пробросить порты `127.0.0.1:80` и `127.0.0.1:8080`.
-5. Добавить в `mihomo` (или его дашборд) лейблы:
-   ```yaml
-   labels:
-     - "traefik.enable=true"
-     - "traefik.http.routers.mihomo.rule=Host(`mihomo.localhost`)"
-     - "traefik.http.routers.mihomo.entrypoints=web"
-     - "traefik.http.services.mihomo.loadbalancer.server.port=<mihomo_dashboard_port>"
+### 6. Автоматизация GitHub Token Refresher (Systemd)
+- **Status:** Pending
+- **Context:** Сейчас `hydra` запускает фоновый цикл обновления токена.
+- **Goal:** В идеале перенести это в `systemd` таймер на стороне `l3rn4-nix`, чтобы токен обновлялся даже без запущенного `hydra`.
