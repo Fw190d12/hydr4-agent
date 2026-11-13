@@ -128,3 +128,18 @@ Move token generation to the host. The container no longer contains `gh-token` o
 - The container is simpler (no `gh-token` binary).
 - The private key (`private-key.pem`) is no longer visible inside the container.
 - The token must be refreshed manually (`./hydra token`) or via a cron job on the host.
+
+### ADR-008: External Traefik Gateway on l3rn4-nix
+
+**Status:** Accepted.
+
+**Context:**
+Initially, `hydr4-agent` ran its own Traefik instance to provide local domains. However, Traefik is an infrastructure gateway, not application logic.
+
+**Decision:**
+Migrate Traefik to the `l3rn4-nix` infrastructure layer. `hydr4-agent` now only declares its services via Docker labels and connects to the external `traefik-net` network. `l3rn4-nix` also routes `mihomo.localhost` through the same gateway.
+
+**Consequences:**
+- `hydr4-agent` is now purely application logic.
+- Domains (`agent.localhost`, `api.localhost`, `mihomo.localhost`) are managed centrally.
+- Security is improved via `docker-socket-proxy`.
