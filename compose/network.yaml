@@ -1,3 +1,5 @@
 networks:
   agent-net:
     name: hydr4-agent-net
+  traefik-net:
+    external: true

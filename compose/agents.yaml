@@ -28,6 +28,7 @@ services:
       - ~/hydr4-data/secrets/github-app/current-token:/home/agent/.config/github-app/current-token:ro
     networks:
       - agent-net
+      - traefik-net
     restart: unless-stopped
     depends_on:
       aggregator:
