@@ -25,7 +25,7 @@ services:
       - ~/hydr4-data/agent/config:/home/agent/.config
       - ~/hydr4-data/agent/local-share:/home/agent/.local/share/opencode
       - ../configs:/configs:ro
-      - ~/hydr4-data/secrets/github-app/current-token:/home/agent/.config/github-app/current-token:ro
+      - ~/hydr4-data/secrets/github-app/token:/home/agent/.config/github-app:ro
     networks:
       - agent-net
       - traefik-net
