@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "hydr4/nvidia/nemotron-3-ultra-550b-a55b",
+  "model": "hydr4/nemotron-3-ultra-550b",
   "provider": {
     "hydr4": {
       "npm": "@ai-sdk/openai-compatible",
@@ -11,31 +11,15 @@
         "timeout": 600000
       },
       "models": {
-        "deepseek-flash": {
-          "name": "DeepSeek Flash (Official)",
-          "tool_call": true,
-          "reasoning": true,
-          "interleaved": { "field": "reasoning_content" }
-        },
-        "deepseek-v4-pro": {
-          "name": "DeepSeek V4 Pro (Official)",
-          "tool_call": true,
-          "reasoning": true,
-          "interleaved": { "field": "reasoning_content" }
-        },
-        "gemini-3.5-flash-lite": {
-          "name": "Gemini 3.5 Flash Lite",
+        "nemotron-3-ultra-550b": {
+          "name": "NVIDIA Nemotron 550B",
           "tool_call": true
         },
-        "deepseek-ai/deepseek-v4.1-flash": {
-          "name": "NVIDIA DeepSeek (Slow)",
+        "deepseek-v4.1-flash": {
+          "name": "DeepSeek V4.1 (AMD/NVIDIA)",
           "tool_call": true,
           "reasoning": true,
           "interleaved": { "field": "reasoning_content" }
-        },
-        "nvidia/nemotron-3-ultra-550b-a55b": {
-          "name": "NVIDIA Nemotron Ultra 550B",
-          "tool_call": true
         }
       }
     }
